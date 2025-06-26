@@ -1,0 +1,35 @@
+# 权威DNS服务器的地址,未指定端口时，默认使用53端口。
+name_server = "your_dns_server_ip[:port]"
+
+# DNS区域
+zone = "example.com."
+
+# 需要更新的A记录的主机名
+hostname = "my-pc"
+
+# DNS记录的TTL（生存时间），默认为3600秒
+#ttl = 3600
+
+# 连接DNS服务器的超时时间（秒），默认为5秒
+#timeout = 5
+
+# 与DNS服务器的通信协议，支持 "udp" 或 "tcp"，默认为 "udp"
+protocol = "udp"
+
+# 用于获取IP地址的网络接口名称。
+# 如果未指定，程序会自动查找 "wlan", "以太网", "ethernet" 等常用接口。
+interface = "以太网"
+
+# 日志级别，支持 "info" 或 "debug"，默认为 "info"
+log_level = "info"
+
+# TSIG密钥信息，可以配置多个
+[[tsig]]
+# 密钥名称
+name = "your-key-name"
+
+# 加密算法，支持 "hmac-sha256", "hmac-sha384", "hmac-sha512"
+algorithm = "hmac-sha256"
+
+# Base64编码的密钥
+secret = "your_base64_encoded_secret"
