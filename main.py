@@ -104,6 +104,7 @@ def get_interface_ip(interface_name: str | None) -> IPv4Address | None:
     try:
         # 获取所有网络接口
         net_if_addrs = psutil.net_if_addrs()
+        netif = []
 
         if interface_name is None:
             # 如果没有指定接口名称，则返回第一个接口为某个列表中（比如“WLAN”，“以太网”）的IPV4地址

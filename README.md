@@ -11,15 +11,15 @@
 - **日志记录**: 将操作日志同时输出到控制台和 `ddns.log` 文件，并支持 `info` 和 `debug` 两种日志级别。
 - **依赖明确**: 使用 `pydantic` 进行配置管理，`dnspython` 处理 DNS 通信，`psutil` 获取网络信息。
 
-## 安装教程
+## 安装与使用
 
 ### 预编译版本
 
-您可以下载 [Release 页面](https://github.com/ardenet/ddns/releases) 预编译的可执行文件, 解压后修改 `config.example.toml` 文件配置程序参数并保存为 `config.toml`，然后运行 `ddns.exe` 即可推送更新。推荐使用**计划任务**来定时更新。
+您可以下载 [Release 页面](https://github.com/ardenet/ddns/releases) 预编译的可执行文件, 解压后修改 `config.example.toml` 文件配置程序参数并保存为 `config.toml`，然后运行 `ddns.exe` 即可推送更新。推荐使用**计划任务**来定时更新， 可参考 [Windows 计划任务](#windows-计划任务) 配置。
 
-### 源码编译
+### 源码使用
 
-可以采取源码编译安装方式来部署 DDNS 客户端。以下是详细的安装步骤：
+可以采取源码直接运行或者打包后运行的方式来使用 DDNS 客户端。以下是详细步骤：
 
 ***环境要求**: Python 3.12 或更高版本。*
 
@@ -34,25 +34,26 @@
     项目依赖项在 `pyproject.toml` 中定义。您可以使用 `uv` 或者`pip` 进行安装：
 
     ```powershell
-    uv sync --dev
-
-    pip install -e .[dev]
+    # 要使用pyinstaller进行打包，需要安装pyinstaller, 添加 `--dev` 参数；不需要则不添加dev参数，pip安装时相同
+    uv sync [--dev]
+    # 或
+    pip install . [--group dev]
     ```
 
-1. **运行或编译程序**
-    可以直接使用 Python 运行 `main.py` 程序，或者使用 PyInstaller 编译程序后运行。编译后的程序在 `/dist` 目录下。
+1. **直接运行或打包程序后运行**
+    可以直接使用 Python 运行 `main.py` 程序，或者使用 PyInstaller 打包程序后运行。打包后的程序在 `/dist` 目录下。
 
     ```powershell
     pyinstaller --name ddns --onefile --noconsole main.py
     ```
 
-## 使用教程
+## 高级配置
 
-### 1. 配置文件
+### 配置文件
 
 在安装根目录下创建一个名为 `config.toml` 的文件。该文件用于配置程序的主要参数, 具体参考 [`config.example.toml`](./config.example.toml)。
 
-### 2. 命令行参数
+### 命令行参数
 
 您也可以通过命令行参数来运行程序，命令行参数会覆盖 `config.toml` 文件中的同名配置。
 
@@ -70,17 +71,27 @@
 | `--tsig-algorithm` | TSIG算法 |
 | `--tsig-secret` | TSIG密钥 (Base64编码) |
 
-### 3. 运行程序
+### Windows 计划任务
 
-配置完成后，直接运行 `ddns.exe` 即可, 或者直接使用 Python 运行 `main.py`。
+您可以将 DDNS 客户端设置为 Windows 计划任务，以便定时更新 DNS 记录。
 
-```powershell
-ddns
-# 或
-python main.py
-```
+1. 打开 **任务计划程序** (`taskschd.msc`)。
+1. 右键单击 **任务计划程序库** 并选择 **创建基本任务...**。
+1. 输入任务名称和描述，**触发器(Trigger)** 选择 **当特定事件被记录时** 类型，设置日志为 **Microsoft-Windows-DHCP-Client/Operational**, 源为 **Dhcp-Client**，事件ID为 **50028** (*IP address change，IP地址更改*)。
 
-程序将根据配置获取本机IP，并向指定的DNS服务器发送更新请求。
+    ![Task Detail](./assets/trigger.png)
+
+    *\***注意**：如果源只有 **Dhcpv6-Client** 选项，请重新选择日志，有两个 **Microsoft-Windows-DHCP-Client/Operational**。*
+1. **操作** 页面选择 **启动程序** 操作类型，输入 `ddns.exe` 的路径完成或者输入 `pythonw` 路径(*防止出现运行的黑框*), 并将**添加参数**指向 ddns 主程序的路径(*\<path to ddns\>/main.py*),将**起始于**指向 ddns 程序的项目根目录(*\<path to ddns\>*)。
+
+    ![Action Detail](./assets/action.png)
+1. 最后保存并完成创建
+
+    ![success](./assets/success.png)
+
+## Issues
+
+如果您遇到任何问题，请在 [GitHub issues](https://github.com/ardenet/ddns/issues) 中提交, 如果有精力我会回复处理，不过这个项目本身就是自用的，可能没有那么多精力维护。
 
 ## 贡献教程
 
